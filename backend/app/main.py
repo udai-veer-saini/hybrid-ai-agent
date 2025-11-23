@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.models.chat_models import ChatRequest, ChatResponse
 from app.agents.system_agent import system_agent_handler
 from app.agents.automation_agent import automation_agent_handler
+from app.routes.automation import router as automation_router
 
 app = FastAPI(title="Hybrid AI Agent Backend")
 
@@ -14,6 +15,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(automation_router)
 
 @app.get("/")
 def home():
