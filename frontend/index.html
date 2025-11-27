@@ -25,22 +25,26 @@
     --success:#5da8ff;
 }
 
-*{box-sizing:border-box}
+* { box-sizing:border-box; }
 
-html,body{
+html, body {
     height:100%;
     margin:0;
     font-family:Inter, "Segoe UI", system-ui, -apple-system, Roboto, Arial;
     color:var(--text);
     background:linear-gradient(180deg,#0d0e13 0%, #0a0b10 100%);
+    overflow:hidden; /* ensures the page never scrolls */
 }
 
-/* Layout */
-.app{
+/* ===============================
+   ROOT LAYOUT
+================================ */
+.app {
     height:100vh;
     display:flex;
     gap:18px;
     padding:18px;
+    overflow:hidden;  /* prevents outer scroll issues */
 }
 
 /* ===============================
@@ -56,6 +60,7 @@ html,body{
     display:flex;
     flex-direction:column;
     gap:14px;
+    flex-shrink:0;
 }
 
 .brand{
@@ -102,7 +107,6 @@ html,body{
     color:var(--accent);
 }
 
-/* Footer */
 .sidebar-footer{
     margin-top:auto;
     padding-top:10px;
@@ -112,15 +116,18 @@ html,body{
 }
 
 /* ===============================
-   MAIN AREA
+   MAIN COLUMN
 ================================ */
-.main{
+.main {
     flex:1;
     display:flex;
     flex-direction:column;
     gap:16px;
+    min-height:0;    /* required for nested flexbox */
+    min-width:0;     /* prevents horizontal collapse */
 }
 
+/* TOP BAR */
 .topbar{
     height:64px;
     background:var(--panel-bg);
@@ -130,6 +137,7 @@ html,body{
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-shrink:0;
 }
 
 .topbar .title{
@@ -141,10 +149,24 @@ html,body{
 }
 
 /* ===============================
+   CONTENT AREA (chat + tools)
+================================ */
+.content {
+    flex:1;
+    display:flex;
+    gap:16px;
+    min-height:0;
+    min-width:0;
+    overflow:hidden;
+}
+
+/* ===============================
    CHAT AREA
 ================================ */
-.chat-area{
+.chat-area {
     flex:1;
+    min-width:0;   /* THIS prevents chat shrinking horizontally */
+    min-height:0;
     background:#13151b;
     border-radius:12px;
     padding:16px;
@@ -153,6 +175,7 @@ html,body{
     display:flex;
     flex-direction:column;
     gap:12px;
+    overflow:hidden; /* required */
 }
 
 .hero{
@@ -165,9 +188,12 @@ html,body{
 .hero h1{margin:0;font-size:20px;color:var(--accent)}
 .hero p{margin-top:8px;color:var(--muted)}
 
+/* Chat messages scroll */
 .chat-window{
     flex:1;
-    overflow:auto;
+    overflow-y:auto;
+    min-height:0;
+    min-width:0;
     display:flex;
     flex-direction:column;
     gap:10px;
@@ -200,29 +226,13 @@ html,body{
     color:var(--text);
 }
 
-/* Timestamps */
 .meta{
     margin-top:6px;
     font-size:11px;
     color:var(--muted);
 }
 
-/* Typing */
-.dot{
-    width:8px;height:8px;
-    background:var(--accent);
-    border-radius:50%;
-    animation:bounce 1.1s infinite;
-}
-@keyframes bounce{
-    0%{transform:translateY(0)}
-    50%{transform:translateY(-6px)}
-    100%{transform:translateY(0)}
-}
-
-/* ===============================
-   COMPOSER
-================================ */
+/* Composer */
 .composer{
     display:flex;
     gap:12px;
@@ -230,7 +240,8 @@ html,body{
     background:#181b22;
     border-radius:12px;
     border:1px solid var(--card-border);
-    align-items: flex-end;
+    align-items:flex-end;
+    flex-shrink:0;
 }
 
 .composer textarea{
@@ -241,8 +252,8 @@ html,body{
     padding:12px;
     border-radius:10px;
     resize:none;
-    overflow-y: auto !important;
-    max-height: 120px !important;
+    overflow-y:auto;
+    max-height:120px;
 }
 
 .composer textarea:focus{
@@ -260,49 +271,46 @@ html,body{
     cursor:pointer;
 }
 
+/* Logger */
+.logger{
+    background:#1a1c24;
+    border:1px solid rgba(110,120,150,0.15);
+    padding:8px;
+    border-radius:8px;
+    font-size:12px;
+    color:var(--muted);
+    max-height:120px;
+    overflow:auto;
+}
+
 /* ===============================
-   RIGHT PANEL (TOOLS)
+   RIGHT TOOL PANEL
 ================================ */
 .panel{
     width:360px;
+    flex-shrink:0;   /* keeps width stable */
     background:#15171d;
     border-radius:12px;
     padding:14px;
     border:1px solid var(--card-border);
-    overflow:auto;
-    align-self: flex-start !important;
+    overflow-y:auto;
+    min-height:0;
 }
 
-.panel h3{
-    margin:0 0 10px;
-    color:var(--muted);
-}
+.panel h3{margin:0 0 10px;color:var(--muted)}
 
 .tool-card{
     background:#181b22;
     border:1px solid var(--card-border);
     padding:12px;
     border-radius:10px;
+    margin-bottom:12px;
 }
 
-.tool-card h4{
-    margin:0 0 6px;
-    color:var(--text);
-}
+.tool-card h4{margin:0 0 6px;color:var(--text)}
+.tool-card p{margin:0;font-size:13px;color:var(--muted)}
+.tool-card .actions{margin-top:10px;display:flex;gap:8px}
 
-.tool-card p{
-    margin:0;
-    font-size:13px;
-    color:var(--muted);
-}
-
-.tool-card .actions{
-    margin-top:10px;
-    display:flex;
-    gap:8px;
-}
-
-/* Buttons */
 .tool-btn{
     padding:8px 12px;
     border-radius:8px;
@@ -320,85 +328,62 @@ html,body{
 }
 
 /* ===============================
-   INPUT FIELDS (Automation)
-================================ */
-.input-field{
-    width:100%;
-    padding:10px 12px;
-    margin-top:8px;
-    background:#1a1c24;
-    border-radius:10px;
-    border:1px solid rgba(110,120,150,0.15);
-    color:var(--text);
-    font-size:14px;
-}
-
-.input-field:focus{
-    background:#1d1f26;
-    outline:none;
-    border-color:var(--accent);
-}
-
-/* ===============================
-   MODAL
-================================ */
-.modal-backdrop{
-    position:fixed;inset:0;
-    background:rgba(0,0,0,0.6);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:9999;
-}
-
-.modal{
-    background:#1b1d25;
-    padding:20px;
-    border-radius:12px;
-    border:1px solid var(--card-border);
-    width:440px;
-    max-width:90%;
-}
-
-.modal h3{margin:0 0 12px;color:var(--accent)}
-.modal p{color:var(--muted)}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px}
-
-/* ===============================
-   LOGGER
-================================ */
-.logger{
-    background:#1a1c24;
-    border:1px solid rgba(110,120,150,0.15);
-    padding:8px;
-    border-radius:8px;
-    font-size:12px;
-    color:var(--muted);
-    max-height:120px;
-    overflow:auto;
-}
-/* Fix chat + automation panel vertical alignment */
-.content {
-    display: flex;            /* ensure it's flex */
-    gap: 16px;                /* keep your spacing */
-    align-items: flex-start;  /* THIS fixes the panel position */
-    height: 100%;
-}
-
-/* Make sure panel does not stretch or drift */
-.panel {
-    align-self: flex-start;
-}
-
-
-
-/* ===============================
    RESPONSIVE
 ================================ */
 @media(max-width:980px){
     .sidebar{display:none}
     .panel{display:none}
 }
+/* ===============================
+   MODERN THIN SCROLLBARS
+================================ */
+* {
+    scrollbar-width: thin;                /* Firefox */
+    scrollbar-color: #3a3f4b transparent; /* Firefox */
+}
+
+::-webkit-scrollbar {
+    width: 6px;   /* slim */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* clean */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3a3f4b;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4a4f5c;
+}
+
+/* ===================================
+   AUTOMATION INPUT FIELD (Polished)
+=================================== */
+.input-field {
+    width: 100%;
+    padding: 12px 14px;                 /* more breathing room */
+    margin-top: 10px;                   /* spacing above inputs */
+    background: #1a1c24;
+    border-radius: 10px;                /* soft, modern radius */
+    border: 1px solid rgba(110,120,150,0.20);
+    color: var(--text);
+    font-size: 14px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    background: #1d1f26;                /* subtle glow */
+    border-color: var(--accent);        /* theme blue */
+}
+
+.input-field::placeholder {
+    color: var(--muted);
+}
+
 
 </style>
 </head>
