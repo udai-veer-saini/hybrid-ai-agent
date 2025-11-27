@@ -59,7 +59,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 
 🧩 System Architecture (Diagram)
-                 ┌────────────────────────┐
+```txt           ┌────────────────────────┐
                  │        Frontend         │
                  │  (User Interaction UI)  │
                  └──────────┬─────────────┘
@@ -90,10 +90,10 @@ uvicorn app.main:app --reload
                  │      Final Output       │
                  │  (Suggestions/Actions)  │
                  └────────────────────────┘
-
+```
 
 🔄 Data Flow 
-
+```txt
 User Input
     │
     ▼
@@ -108,7 +108,7 @@ AI Agent (Decision Layer)
               └──► Executes tasks, triggers routines, performs actions
 
 Final Output → structured results returned to frontend
-
+```
 🧠 How the Hybrid AI Agent Works (with Groq AI)
 
 1. The user enters a query in natural language through the frontend.
