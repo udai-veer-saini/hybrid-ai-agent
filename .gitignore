@@ -10,6 +10,11 @@ __pycache__/
 *.pdb
 *.pkl
 
+# Virtual Environment (extra safety)
+Lib/
+lib/
+site-packages/
+
 # Local app data
 instance/
 *.db

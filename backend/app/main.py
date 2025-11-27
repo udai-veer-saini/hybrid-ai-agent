@@ -1,3 +1,5 @@
+# backend/app/main.py
+from app.agents.groq_agent import groq_agent_handler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.chat_models import ChatRequest, ChatResponse
@@ -15,6 +17,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# include automation router
 app.include_router(automation_router)
 
 @app.get("/")
@@ -23,10 +27,20 @@ def home():
 
 @app.post("/chat", response_model=ChatResponse)
 def chat_endpoint(payload: ChatRequest):
-    """
-    Route that decides whether to use system tools,
-    automation tools, or forward to Flowise agent.
-    """
+    original = payload.message
+    text = original.lower()
+
+    # System diagnostics routing
+    if any(k in text for k in ["diagnose", "system", "cpu", "ram", "performance"]):
+        return system_agent_handler(original)
+
+    # Automation routing
+    if any(k in text for k in ["rename", "delete", "move", "folder", "file", "directory"]):
+        return automation_agent_handler(original)
+
+    # Fallback: Groq LLM
+    return groq_agent_handler(original)
+
     message = payload.message.lower()
 
     if "network" in message or "slow" in message or "diagnose" in message:
