@@ -736,23 +736,7 @@ async function runSystemScan() {
 }
 
 /* Prepare cleanup: confirm-only demo */
-function prepareAutomation(action){
-  if (action === 'clean-temp') {
-    openModal({
-      title: 'Confirm Disk Cleanup',
-      body: 'This will delete files from temporary directories. Are you sure you want to proceed? (Currently running in demo mode.)',
-      onConfirm: async () => {
-        closeModal();
-        appendMessage('user', 'Confirm: run disk cleanup (demo).');
-        showTyping(true);
-        logMessage('User confirmed cleanup');
-        await new Promise(r => setTimeout(r, 1000));
-        showTyping(false);
-        appendMessage('ai', 'Cleanup simulated: Removed temporary files (demo).');
-      }
-    });
-  }
-}
+
 
 /* Script generation: still local/demo */
 function generateScript(kind){
@@ -864,34 +848,57 @@ async function automation_rename(){
   }
 }
 
-/* Delete file/folder */
-async function automation_delete(){
-  const path = document.getElementById('deletePath').value.trim();
+/* Delete file/folder — direct, no modal */
+async function automation_delete() {
+  const input = document.getElementById('deletePath');
+  const path = input ? input.value.trim() : '';
+
   if (!path) {
     appendMessage('ai', 'Please enter a file or folder path to delete.');
     return;
   }
 
-  openModal({
-    title: 'Confirm Delete',
-    body: 'This will permanently delete the selected file or folder: ' + path,
-    onConfirm: async () => {
-      closeModal();
-      appendMessage('user', 'Delete: ' + path);
-      showTyping(true);
-      const data = await callAutomation('delete', { path });
-      showTyping(false);
+  // Show in chat what user requested
+  appendMessage('user', 'Delete: ' + path);
+  showTyping(true);
 
-      if (data.error) {
-        appendMessage('ai', 'Delete error: ' + data.error);
-      } else if (data.message) {
-        appendMessage('ai', data.message);
-      } else {
-        appendMessage('ai', 'Unexpected response from delete endpoint.');
-      }
+  try {
+    const res = await fetch(`${state.backendUrl}/automation/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: path,
+        confirm: true          // IMPORTANT: required by your FastAPI model
+      })
+    });
+
+    const data = await res.json();
+    showTyping(false);
+
+    // If FastAPI returned non-2xx status
+    if (!res.ok) {
+      appendMessage('ai', 'Delete error: ' + (data.detail || JSON.stringify(data)));
+      return;
     }
-  });
+
+    if (data.error) {
+      appendMessage('ai', 'Delete error: ' + data.error);
+    } else if (data.message) {
+      appendMessage('ai', data.message);
+    } else if (data.warning) {
+      appendMessage(
+        'ai',
+        'Warning: ' + data.warning + '\n' + (data.instruction || '')
+      );
+    } else {
+      appendMessage('ai', 'Unexpected response from delete endpoint.');
+    }
+  } catch (err) {
+    showTyping(false);
+    appendMessage('ai', 'Failed to call delete endpoint: ' + err.message);
+  }
 }
+
 
 /* Create folder */
 async function automation_create(){
